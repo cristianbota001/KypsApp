@@ -1,0 +1,14 @@
+body{
+    margin: 0%;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.Index__main_div{
+    background: linear-gradient(45deg, #82b3c2, #57b68b);
+    min-width: 100%;
+    min-height: 100%;
+}

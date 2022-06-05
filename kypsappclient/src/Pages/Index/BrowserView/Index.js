@@ -3,8 +3,8 @@ import "./CSS/Index.css"
 
 const Index = () => {
     return(
-        <div>
-            ciao mondo
+        <div className="Index__main_div">
+            ciao
         </div>
     )
 }

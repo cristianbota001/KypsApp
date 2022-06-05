@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import { useMediaQuery } from "react-responsive";
 import { useNavigate } from "react-router-dom";
 import Home from "./BrowserView/Home";
@@ -9,7 +9,11 @@ function ResponsiveRouterHome(){
     const navigate = useNavigate()
 
     const CheckSession = () => {
-        
+        if (sessionStorage.getItem("session") === null){
+            sessionStorage.setItem("session", "false")
+        }else if (sessionStorage.getItem("session") === "false"){
+            navigate("/")
+        }
     }
 
     useEffect(() => {

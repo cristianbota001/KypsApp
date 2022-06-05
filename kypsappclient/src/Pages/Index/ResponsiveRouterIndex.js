@@ -11,6 +11,7 @@ function ResponsiveRouterIndex(){
     const CheckSession = () => {
         if (sessionStorage.getItem("session") === null){
             sessionStorage.setItem("session", "false")
+            sessionStorage.setItem("user_auth_id", "none")
         }else if (sessionStorage.getItem("session") === "true"){
             navigate("/home")
         }

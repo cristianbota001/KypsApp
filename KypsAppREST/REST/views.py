@@ -1,13 +1,10 @@
-from email.mime import base
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
-from requests import request
 from .serializer import CredentialsSerializer
 from .models import Profile
 from django.views.decorators.csrf import csrf_exempt
-from .forms import RegistrationForm
+from .forms import RegistrationForm, LoginForm
 from django.contrib.auth.models import User
-from django.middleware.csrf import get_token
+from django.contrib.auth import authenticate
 import base64
 import os
 
@@ -22,15 +19,33 @@ def Registration(request):
             user_auth_id = GetNewID()
             user = User.objects.create_user(username = username, password = password)
             Profile.objects.create(user = user, user_auth_id = user_auth_id)
-            return JsonResponse({"response":"ok"})
+            return JsonResponse({"response":"ok", "user_auth_id":user_auth_id})
         else:
             context["errors"] = context["form"].errors
             return JsonResponse({"response":{"errors":context["errors"]}})
     return HttpResponse(status=403)
 
+@csrf_exempt
+def Login(request):
+    context = {}
+    context["form"] = LoginForm(request.POST or None)
+    if request.method == "POST":
+        if context["form"].is_valid():
+            username = context["form"].cleaned_data["username"]
+            password1 = context["form"].cleaned_data["password1"]
+            if authenticate(username = username, password = password1):
+                return JsonResponse({"response":"ok"})
+            else:
+                return JsonResponse({"response":{"errors":{"username":["Utente o password errati"]}}})
+        else:
+            context["errors"] = context["form"].errors
+            return JsonResponse({"response":{"errors":context["errors"]}})
+   
+    return HttpResponse(status=403)
+
 def GetNewID():
     ris = Profile.objects.all()
-    id_list = [x["user_auth_id"] for x in ris]
+    id_list = [x.user_auth_id for x in ris]
     while True:
         new_id = base64.urlsafe_b64encode(os.urandom(50)).decode()
         if new_id not in id_list:

@@ -5,11 +5,17 @@ body{
     width: 100%;
     height: 100vh;
     margin: 0%;
+    overflow: hidden;
 }
 
 @font-face {
     font-family: Poppins;
     src: url("../MEDIA/Poppins-Medium.ttf");
+}
+
+@font-face {
+    font-family: Cabin;
+    src: url("../MEDIA/Cabin-MediumItalic.ttf");
 }
 
 .Index__main_div, .Index__left_div, .Index_submit_button, .Index__right_div, .Index__bottom_cont, .Index__main_form_div, .Index__login_form_div, .Index__registration_form_div{
@@ -56,7 +62,6 @@ body{
     min-width: 800px;
     max-width: 800px;
     height: 100%;
-    /* background-color: #b65770; */
     justify-content: flex-start;
     transition: ease-in-out 0.2s;
 }
@@ -70,12 +75,12 @@ body{
     height: 100%;
     flex-direction: column;
     justify-content: flex-start;
-    margin-top: 100px;
+    overflow-y: auto;
 }
 
 .Index__input_title{
     color: white;
-    font-size: 20px;
+    font-size: 15px;
     font-family: Poppins;
 }
 
@@ -93,7 +98,6 @@ body{
     height: 100px;
     margin-top: 50px;
     flex-direction: column;
-    
 }
 
 .Index_submit_button{
@@ -129,4 +133,29 @@ body{
 
 .Index__main_form_div_toggle{
     transform: translateX(-50%);
+}
+
+.Index__form_response{
+    margin-top: 10px;
+}
+
+.Index__form_response p{
+    color: rgb(85, 67, 67);
+    font-family: Poppins;
+    font-size: 12px;
+}
+
+.Index__form_title{
+    color: white;
+    font-family: Cabin;
+    font-size: 40px;
+}
+
+::-webkit-scrollbar{
+    background-color: rgb(98, 128, 114);
+    width: 5px;
+}
+
+::-webkit-scrollbar-thumb{
+    background-color: rgb(38, 61, 50);
 }

@@ -5,6 +5,9 @@ class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     user_auth_id = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.user.username
+
 class Credentials(models.Model):
     service = models.CharField(max_length=255)
     username = models.CharField(max_length=255)

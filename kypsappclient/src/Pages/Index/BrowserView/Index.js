@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Middleware from "../../../middleware";
 import "./CSS/Index.css"
 
@@ -9,6 +9,7 @@ const Index = () => {
     var change_form_button = useRef()
     var change_form_button_2 = useRef()
     var main_form_page = useRef()
+    const [errors, setErrors] = useState([])
 
     useEffect(() => {
         change_form_button.current.addEventListener("click", (e) => {ChangeFormPage(e)})
@@ -21,11 +22,18 @@ const Index = () => {
     const SendFormData = (e, method, form) => {
         e.preventDefault();
         let form_data = new FormData(document.querySelector(form))
-        let json_data = Middleware.SendFormData(form_data, method)
+        Middleware.SendFormData(form_data, method).then(json_data => {
+            if (json_data["response"] === "ok"){
+                localStorage.setItem("user_auth_id", json_data["user_auth_id"])
+            }else{
+                setErrors({...json_data["response"]["errors"]})
+            }
+        })
     }
 
     const ChangeFormPage = (e) => {
         e.preventDefault();
+        setErrors([])
         main_form_page.current.classList.toggle("Index__main_form_div_toggle")
     }
 
@@ -40,6 +48,7 @@ const Index = () => {
             <div className="Index__right_div">
                 <div className="Index__main_form_div" ref={main_form_page}>
                     <form className="Index__login_form_div">
+                        <h1 className="Index__form_title">Kyps</h1>
                         <div className="Index__input_text_cont">
                             <p className="Index__input_title">Username</p>
                             <input type="text" name="username" className="Index__input_text" />
@@ -56,8 +65,16 @@ const Index = () => {
                                 Registrati
                             </button>
                         </div>
+                        <div className="Index__form_response">
+                            {
+                                Object.keys(errors).map(ele => {
+                                    return <p key={ele}>*{errors[ele][0]}</p>
+                                })
+                            }
+                        </div>
                     </form>
                     <form className="Index__registration_form_div">
+                        <h1 className="Index__form_title">Kyps</h1>
                         <div className="Index__input_text_cont">
                             <p className="Index__input_title">Username</p>
                             <input type="text" name="username" className="Index__input_text" />
@@ -77,6 +94,13 @@ const Index = () => {
                             <button className="Index_change_form_button" ref={change_form_button_2}>
                                 Accedi
                             </button>
+                        </div>
+                        <div className="Index__form_response">
+                            {
+                                Object.keys(errors).map(ele => {
+                                    return <p key={ele}>*{errors[ele][0]}</p>
+                                })
+                            }
                         </div>
                     </form>
                 </div>

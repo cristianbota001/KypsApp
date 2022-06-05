@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Middleware from "../../../middleware";
 import "./CSS/Index.css"
 
@@ -10,6 +11,7 @@ const Index = () => {
     var change_form_button_2 = useRef()
     var main_form_page = useRef()
     const [errors, setErrors] = useState([])
+    const navigate = useNavigate()
 
     useEffect(() => {
         change_form_button.current.addEventListener("click", (e) => {ChangeFormPage(e)})
@@ -24,7 +26,9 @@ const Index = () => {
         let form_data = new FormData(document.querySelector(form))
         Middleware.SendFormData(form_data, method).then(json_data => {
             if (json_data["response"] === "ok"){
-                localStorage.setItem("user_auth_id", json_data["user_auth_id"])
+                sessionStorage.setItem("user_auth_id", json_data["user_auth_id"])
+                sessionStorage.setItem("session", "true")
+                navigate("/home")
             }else{
                 setErrors({...json_data["response"]["errors"]})
             }

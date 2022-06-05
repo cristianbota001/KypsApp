@@ -13,13 +13,14 @@ const Index = () => {
     useEffect(() => {
         change_form_button.current.addEventListener("click", (e) => {ChangeFormPage(e)})
         change_form_button_2.current.addEventListener("click", (e) => {ChangeFormPage(e)})
-        login_button.current.addEventListener("click", (e) => SendFormData(e, "login"))
-        
+        login_button.current.addEventListener("click", (e) => SendFormData(e, "login", ".Index__login_form_div"))
+        registration_button.current.addEventListener("click", (e) => SendFormData(e, "registration", ".Index__registration_form_div"))
+
     }, [])
 
-    const SendFormData = (e, method) => {
+    const SendFormData = (e, method, form) => {
         e.preventDefault();
-        let form_data = new FormData(document.querySelector(".Index__login_form_div"))
+        let form_data = new FormData(document.querySelector(form))
         let json_data = Middleware.SendFormData(form_data, method)
     }
 

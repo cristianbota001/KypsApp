@@ -1,7 +1,18 @@
 body{
-    margin: 0%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     height: 100vh;
+    margin: 0%;
+}
+
+@font-face {
+    font-family: Poppins;
+    src: url("../MEDIA/Poppins-Medium.ttf");
+}
+
+.Index__main_div, .Index__left_div, .Index_submit_button, .Index__right_div, .Index__bottom_cont, .Index__main_form_div, .Index__login_form_div, .Index__registration_form_div{
     display: flex;
     justify-content: center;
     align-items: center;
@@ -9,6 +20,113 @@ body{
 
 .Index__main_div{
     background: linear-gradient(45deg, #82b3c2, #57b68b);
-    min-width: 100%;
-    min-height: 100%;
+    width: 100%;
+    height: 100%;
+}
+
+.Index__left_div{
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+}
+
+.Index__left_div p{
+    font-size: 50px;
+    color: white;
+    text-align: start;
+    width: 90%;
+    font-family: Poppins;
+    flex-direction: column;
+    margin: 0%;
+}
+
+.Index__right_div{
+    min-width: 400px;
+    max-width: 400px;
+    height: 100%;
+    background-color: #6d9b87b1;
+    display: flex;
+    overflow: hidden;
+    justify-content: flex-start;
+    box-shadow: 0 0 10px 0 rgb(82, 82, 82);
+}
+
+.Index__main_form_div{
+    min-width: 800px;
+    max-width: 800px;
+    height: 100%;
+    /* background-color: #b65770; */
+    justify-content: flex-start;
+    transition: ease-in-out 0.2s;
+}
+
+.Index__input_text_cont{
+    width: 80%;
+}
+
+.Index__login_form_div, .Index__registration_form_div{
+    width: 400px;
+    height: 100%;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin-top: 100px;
+}
+
+.Index__input_title{
+    color: white;
+    font-size: 20px;
+    font-family: Poppins;
+}
+
+.Index__input_text{
+    width: 80%;
+    outline: none;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    font-family: Poppins;
+}
+
+.Index__bottom_cont{
+    width: 90%;
+    height: 100px;
+    margin-top: 50px;
+    flex-direction: column;
+    
+}
+
+.Index_submit_button{
+    color: white;
+    font-family: Poppins;
+    background-color: #20714eb1;
+    width: 80%;
+    border-radius: 10px;
+    cursor: pointer;
+    height: 40px;
+    outline: none;
+    border: none;
+    transition: 0.2s;
+    margin-bottom: 20px;
+}
+
+.Index_change_form_button{
+    color: white;
+    font-family: Poppins;
+    background-color: #3f8969b1;
+    width: 40%;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    border: none;
+    transition: 0.2s;
+    height: 30px;
+}
+
+.Index_submit_button:hover{
+    background-color: #308862b1;
+}
+
+.Index__main_form_div_toggle{
+    transform: translateX(-50%);
 }

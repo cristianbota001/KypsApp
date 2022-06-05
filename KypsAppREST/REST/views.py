@@ -32,7 +32,7 @@ def GetNewID():
     ris = Profile.objects.all()
     id_list = [x["user_auth_id"] for x in ris]
     while True:
-        new_id = base64.urlsafe_b64encode(os.urandom("50")).decode()
+        new_id = base64.urlsafe_b64encode(os.urandom(50)).decode()
         if new_id not in id_list:
             return new_id
 

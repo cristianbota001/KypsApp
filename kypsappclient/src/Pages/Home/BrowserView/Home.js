@@ -16,6 +16,7 @@ const Card = (props) => {
     var footer_card = useRef()
     var input_div = useRef()
     const [newMode, setNewMode] = useState(props.infos.newmode)
+    const [id_cred, setIdCred] = useState(null)
 
     useEffect(() => {
 
@@ -32,24 +33,26 @@ const Card = (props) => {
         undo_button.current.addEventListener("click", UndoEvent)
         adjust_button.current.addEventListener("click", AdjustEvent)
         save_button.current.addEventListener("click", SaveNewCred)
-
-        console.log("newmode")
+        delete_button.current.addEventListener("click", DeleteCard)
 
         return(() => {
-            if (undo_button.current !== null && adjust_button.current !== null && save_button.current !== null){
+            if (undo_button.current !== null && adjust_button.current !== null && save_button.current !== null && delete_button.current !== null){
                 undo_button.current.removeEventListener("click", UndoEvent)
                 adjust_button.current.removeEventListener("click", AdjustEvent)
                 save_button.current.removeEventListener("click", SaveNewCred)
+                delete_button.current.removeEventListener("click", DeleteCard)
             }
         })
         
-    }, [newMode])
+    }, [newMode, id_cred])
 
     const SetInputValues = () => {
         let elems = input_div.current.querySelectorAll("input")
         elems[0].value = props.infos.service
         elems[1].value = props.infos.username
         elems[2].value = props.infos.password
+        console.log(props)
+        setIdCred(props.infos.id_cred)
     }
 
     const AdjustEvent = () => {
@@ -78,9 +81,17 @@ const Card = (props) => {
         form_data.append("user_auth_id", sessionStorage.getItem("user_auth_id"))
         Middleware.SendRequest(form_data, "POST", "post_credentials").then(json_data => {
             if (json_data.response === "ok"){
+                setIdCred(json_data.id_cred)
                 setNewMode(false)
+                props.setSavingFalse()
                 AdjustToggle()
             }
+        })
+    }
+
+    const DeleteCard = () => {
+        Middleware.SendRequest(null, "DELETE", "delete_credentials/" + id_cred + "/" + sessionStorage.getItem("user_auth_id")).then(json_data => {
+            
         })
     }
 
@@ -120,7 +131,6 @@ const Card = (props) => {
 
 const Home = () => {
 
-    //const [cred, setCred] = useState([{newmode:true, cred:{"servizio":"Gmail", "username":"bob@gmail.com", "password":"123456"}}])
     const [cred, setCred] = useState([])
     const [saving, setSaving] = useState(false)
     var add_button = useRef()
@@ -140,13 +150,12 @@ const Home = () => {
     }
 
     useEffect(() => {
-        console.log(cred)
         add_button.current.addEventListener("click", AddNewCred)
         return(() => {
             add_button.current.removeEventListener("click", AddNewCred)
         })
        
-    }, [cred])
+    }, [cred, saving])
 
     useEffect(() => {
         GetCreds()
@@ -159,6 +168,10 @@ const Home = () => {
             })
             setCred([...json_data.response])
         })
+    }
+
+    const setSavingFalse = () => {
+        setSaving(false)
     }
 
     return(
@@ -183,7 +196,7 @@ const Home = () => {
                <div className="Home__view_cont">
                     {
                         cred.map((ele, index) => {
-                            return <Card key={index} infos = {ele} PopCred = {PopCred} />
+                            return <Card key={index} infos = {ele} PopCred = {PopCred} setSavingFalse = {setSavingFalse} />
                         })
                     }
                </div>

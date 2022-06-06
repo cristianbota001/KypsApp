@@ -81,7 +81,12 @@ def PostCredentials(request):
         credentials = CredentialsSerializer(data=data)
         if credentials.is_valid():
             credentials.save()
-            return JsonResponse({"response":"ok"})
+            return JsonResponse({"response":"ok", "id_cred":credentials.data["id_cred"]})
         else:
             return JsonResponse({"response":"nok"})
     return HttpResponse(status=403)
+
+@csrf_exempt
+def DeleteCredentials(request, id_cred, user_auth_id):
+    if request.method == "DELETE":
+        print(id_cred, user_auth_id)

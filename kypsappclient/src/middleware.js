@@ -1,6 +1,6 @@
 class Middleware{
-    static SendFormData = async (data, method) => {
-        let response = await fetch("http://192.168.1.66:8000/" + method, {method:"POST", body:data, credentials:"include"})
+    static SendRequest = async (data, method, page) => {
+        let response = await fetch("http://192.168.1.66:8000/" + page, {method:method, body:data, credentials:"include"})
         return response.json()
     }
 }

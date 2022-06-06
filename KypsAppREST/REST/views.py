@@ -1,6 +1,6 @@
 from django.http import HttpResponse, JsonResponse
 from .serializer import CredentialsSerializer
-from .models import Profile
+from .models import Credentials, Profile
 from django.views.decorators.csrf import csrf_exempt
 from .forms import RegistrationForm, LoginForm
 from django.contrib.auth.models import User
@@ -34,7 +34,7 @@ def Login(request):
             username = context["form"].cleaned_data["username"]
             password1 = context["form"].cleaned_data["password1"]
             if authenticate(username = username, password = password1):
-                return JsonResponse({"response":"ok"})
+                return JsonResponse({"response":"ok", "user_auth_id":GetUserAuthID(username)})
             else:
                 return JsonResponse({"response":{"errors":{"username":["Utente o password errati"]}}})
         else:
@@ -42,6 +42,12 @@ def Login(request):
             return JsonResponse({"response":{"errors":context["errors"]}})
    
     return HttpResponse(status=403)
+
+def GetUserAuthID(username):
+    user = User.objects.filter(username = username).first()
+    profile = Profile.objects.filter(user = user).first()
+    auth_id = profile.user_auth_id
+    return auth_id
 
 def GetNewID():
     ris = Profile.objects.all()
@@ -59,8 +65,9 @@ def CheckAuthID(user_auth_id):
 def GetCredentials(request, user_auth_id):
     if request.method == "GET":
         CheckAuthID(user_auth_id)
-        credentials = CredentialsSerializer(Profile.objects.filter(user_auth_id = user_auth_id).first())
-        return JsonResponse(credentials.data, safe=False)
+        creds = Credentials.objects.filter(profile = Profile.objects.filter(user_auth_id = user_auth_id).first())
+        credentials = CredentialsSerializer(creds, many = True)
+        return JsonResponse({"response":credentials.data}, safe=False)
     return HttpResponse(status=403)
 
 @csrf_exempt
@@ -69,8 +76,12 @@ def PostCredentials(request):
         CheckAuthID(request.POST["user_auth_id"])
         profile = Profile.objects.filter(user_auth_id = request.POST["user_auth_id"]).first()
         data = request.POST.copy()
-        data["profile"] = profile
+        data["profile"] = profile.id
+        del data["user_auth_id"]
         credentials = CredentialsSerializer(data=data)
         if credentials.is_valid():
-            return JsonResponse(credentials.data, safe=False)
+            credentials.save()
+            return JsonResponse({"response":"ok"})
+        else:
+            return JsonResponse({"response":"nok"})
     return HttpResponse(status=403)

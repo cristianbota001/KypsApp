@@ -21,10 +21,10 @@ const Index = () => {
 
     }, [])
 
-    const SendFormData = (e, method, form) => {
+    const SendFormData = (e, page, form) => {
         e.preventDefault();
         let form_data = new FormData(document.querySelector(form))
-        Middleware.SendFormData(form_data, method).then(json_data => {
+        Middleware.SendRequest(form_data, "POST", page).then(json_data => {
             if (json_data["response"] === "ok"){
                 sessionStorage.setItem("user_auth_id", json_data["user_auth_id"])
                 sessionStorage.setItem("session", "true")

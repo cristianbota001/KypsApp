@@ -15,12 +15,10 @@ const Card = (props) => {
     var undo_button = useRef()
     var footer_card = useRef()
     var input_div = useRef()
-    const [newMode, setNewMode] = useState(props.infos.newmode)
-    const [id_cred, setIdCred] = useState(null)
 
     useEffect(() => {
 
-        if (newMode == true){
+        if (props.infos.newmode == true){
             AdjustToggle()
         }else{
             SetInputValues()
@@ -35,28 +33,26 @@ const Card = (props) => {
         save_button.current.addEventListener("click", SaveNewCred)
         delete_button.current.addEventListener("click", DeleteCard)
 
-        return(() => {
+        /* return(() => {
             if (undo_button.current !== null && adjust_button.current !== null && save_button.current !== null && delete_button.current !== null){
                 undo_button.current.removeEventListener("click", UndoEvent)
                 adjust_button.current.removeEventListener("click", AdjustEvent)
                 save_button.current.removeEventListener("click", SaveNewCred)
                 delete_button.current.removeEventListener("click", DeleteCard)
             }
-        })
+        }) */
         
-    }, [newMode, id_cred])
+    }, [])
 
     const SetInputValues = () => {
         let elems = input_div.current.querySelectorAll("input")
         elems[0].value = props.infos.service
         elems[1].value = props.infos.username
         elems[2].value = props.infos.password
-        console.log(props)
-        setIdCred(props.infos.id_cred)
     }
 
     const AdjustEvent = () => {
-        if (newMode == false){
+        if (props.infos.newmode == false){
             AdjustToggle()
         }
     }
@@ -69,7 +65,7 @@ const Card = (props) => {
     }
 
     const UndoEvent = () => {
-        if (newMode == true){
+        if (props.infos.newmode == true){
             props.PopCred()
         }else{
             AdjustToggle()
@@ -81,18 +77,19 @@ const Card = (props) => {
         form_data.append("user_auth_id", sessionStorage.getItem("user_auth_id"))
         Middleware.SendRequest(form_data, "POST", "post_credentials").then(json_data => {
             if (json_data.response === "ok"){
-                setIdCred(json_data.id_cred)
-                setNewMode(false)
-                props.setSavingFalse()
-                AdjustToggle()
+                props.setCred([])
             }
         })
     }
 
     const DeleteCard = () => {
-        Middleware.SendRequest(null, "DELETE", "delete_credentials/" + id_cred + "/" + sessionStorage.getItem("user_auth_id")).then(json_data => {
-            
-        })
+        if (props.infos.newmode == false){
+            Middleware.SendRequest(null, "DELETE", "delete_credentials/" + props.infos.id_cred + "/" + sessionStorage.getItem("user_auth_id")).then(json_data => {
+                if (json_data.response === "ok"){
+                    props.setCred([])
+                }
+            })
+        }
     }
 
     return(
@@ -155,23 +152,22 @@ const Home = () => {
             add_button.current.removeEventListener("click", AddNewCred)
         })
        
-    }, [cred, saving])
+    }, [cred])
 
     useEffect(() => {
-        GetCreds()
-    }, [])
+        if (cred.length == 0){
+            GetCreds()
+        }
+    }, [cred])
 
     const GetCreds = () => {
         Middleware.SendRequest(null, "GET", "get_credentials/" + sessionStorage.getItem("user_auth_id")).then(json_data => {
             json_data.response.forEach(ele => {
                 ele["newmode"] = false
             })
-            setCred([...json_data.response])
+            let lista = [{newmode:false}]
+            setCred([...lista])
         })
-    }
-
-    const setSavingFalse = () => {
-        setSaving(false)
     }
 
     return(
@@ -196,7 +192,7 @@ const Home = () => {
                <div className="Home__view_cont">
                     {
                         cred.map((ele, index) => {
-                            return <Card key={index} infos = {ele} PopCred = {PopCred} setSavingFalse = {setSavingFalse} />
+                            return <Card key={index} index_card = {index} infos = {ele} PopCred = {PopCred} setCred = {setCred} />
                         })
                     }
                </div>

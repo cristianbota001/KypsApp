@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {  useEffect, useRef, useState } from "react";
 import "./CSS/Home.css"
 import search from "./MEDIA/search.png"
 import add from "./MEDIA/add.png"
@@ -6,6 +6,8 @@ import exit from "./MEDIA/left.png"
 import delete_img from "./MEDIA/delete.png"
 import adjust from "./MEDIA/adjust.png"
 import Middleware from "../../../middleware";
+import { v4 } from 'uuid';
+import {useNavigate} from "react-router-dom"
 
 const Card = (props) => {
 
@@ -17,6 +19,7 @@ const Card = (props) => {
     var input_div = useRef()
 
     const [newmode, setNewMode] = useState(props.infos.newmode)
+    const [id_cred, setIdCred] = useState(props.infos.id_cred)
 
     useEffect(() => {
         if (newmode == true){
@@ -42,7 +45,7 @@ const Card = (props) => {
             }
         })
         
-    }, [newmode])
+    }, [newmode, props.cred])
 
     const SetInputValues = () => {
         let elems = input_div.current.querySelectorAll("input")
@@ -54,6 +57,7 @@ const Card = (props) => {
     const AdjustEvent = () => {
         if (newmode == false){
             AdjustToggle()
+
         }
     }
 
@@ -77,27 +81,27 @@ const Card = (props) => {
         form_data.append("user_auth_id", sessionStorage.getItem("user_auth_id"))
         Middleware.SendRequest(form_data, "POST", "post_credentials").then(json_data => {
             if (json_data.response === "ok"){
+                setIdCred(json_data.id_cred)
                 AdjustToggle()
-                props.setSaving(false)
                 setNewMode(false)
+                props.Save()
             }
         })
     }
 
     const DeleteCard = () => {
         if (newmode == false){
-            /* Middleware.SendRequest(null, "DELETE", "delete_credentials/" + props.infos.id_cred + "/" + sessionStorage.getItem("user_auth_id")).then(json_data => {
+            Middleware.SendRequest(null, "DELETE", "delete_credentials/" + id_cred + "/" + sessionStorage.getItem("user_auth_id")).then(json_data => {
                 if (json_data.response === "ok"){
-                    //get creds or else
+                   //
                 }
-            }) */
+            })
             props.PopCred(props.index_card)
         }
     }
 
     return(
         <div className="Home__credentials_card">
-            <p>{props.index_card}</p>
             <div className="Home__credentials_card_navbar">
                 <div className="Home__credentials_card_navbar_cont">
                     <button className="Home__credentials_card_navbar_div_button" ref={adjust_button}>
@@ -134,18 +138,21 @@ const Home = () => {
 
     const [cred, setCred] = useState([])
     const [saving, setSaving] = useState(false)
+    const navigate = useNavigate()
     var add_button = useRef()
     var exit_button = useRef()
 
     const AddNewCred = () => {
         if (saving == false){
-            setCred([...cred, {newmode:true}])
+            setCred([...cred, {newmode:true, id_comp:v4()}])
             setSaving(true)
         }   
     }
 
     const ExitEvent = () => {
-        PopCred(1)
+        sessionStorage.setItem("session", "false")
+        sessionStorage.setItem("user_auth_id", "none")
+        navigate("/")
     }
 
     const PopCred = (index) => {
@@ -153,19 +160,21 @@ const Home = () => {
         index === undefined ? lista.pop() : lista.splice(index, 1)
         setCred([...lista])
         setSaving(false)
-        console.log("index => ", index, "cred => ", cred)
+    }
+
+    const Save = () => {
+        setSaving(false)
+        cred[cred.length - 1].newmode = false // si potrebbe togliere perche se l'id del componente non cambia, non viene re-renderizzato
     }
 
     useEffect(() => {
-
-        console.log("efect cred => ", cred)
-
         add_button.current.addEventListener("click", AddNewCred)
         exit_button.current.addEventListener("click", ExitEvent)
-        
         return(() => {
-            add_button.current.removeEventListener("click", AddNewCred)
-            exit_button.current.removeEventListener("click", ExitEvent)
+            if (add_button.current !== null && exit_button.current !== null){
+                add_button.current.removeEventListener("click", AddNewCred)
+                exit_button.current.removeEventListener("click", ExitEvent)
+            }
         })
        
     }, [cred, saving])
@@ -178,6 +187,7 @@ const Home = () => {
         Middleware.SendRequest(null, "GET", "get_credentials/" + sessionStorage.getItem("user_auth_id")).then(json_data => {
             json_data.response.forEach(ele => {
                 ele["newmode"] = false
+                ele["id_comp"] = v4()
             })
             setCred([...json_data.response])
         })
@@ -205,7 +215,7 @@ const Home = () => {
                <div className="Home__view_cont">
                     {
                         cred.map((ele, index) => {
-                            return <Card key={ele.id_cred} index_card = {index} infos = {ele} PopCred = {PopCred} setSaving = {setSaving} />
+                            return <Card key={ele.id_comp} index_card = {index} infos = {ele} PopCred = {PopCred} Save = {Save} cred = {cred} />
                         })
                     }
                </div>

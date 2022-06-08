@@ -33,14 +33,14 @@ const Card = (props) => {
 
         undo_button.current.addEventListener("click", UndoEvent)
         adjust_button.current.addEventListener("click", AdjustEvent)
-        save_button.current.addEventListener("click", SaveNewCred)
+        save_button.current.addEventListener("click", SaveEvent)
         delete_button.current.addEventListener("click", DeleteCard)
 
         return(() => {
             if (undo_button.current !== null && adjust_button.current !== null && save_button.current !== null && delete_button.current !== null){
                 undo_button.current.removeEventListener("click", UndoEvent)
                 adjust_button.current.removeEventListener("click", AdjustEvent)
-                save_button.current.removeEventListener("click", SaveNewCred)
+                save_button.current.removeEventListener("click", SaveEvent)
                 delete_button.current.removeEventListener("click", DeleteCard)
             }
         })
@@ -57,7 +57,6 @@ const Card = (props) => {
     const AdjustEvent = () => {
         if (newmode == false){
             AdjustToggle()
-
         }
     }
 
@@ -87,6 +86,24 @@ const Card = (props) => {
                 props.Save()
             }
         })
+    }
+
+    const UpdateCard = () => {
+        let form_data = new FormData(input_div.current)
+        form_data = JSON.stringify(Object.fromEntries(form_data))
+        Middleware.SendRequest(form_data, "PUT", "put_credentials/" + id_cred + "/" + sessionStorage.getItem("user_auth_id") + "/" + form_data).then(json_data => {
+            if (json_data.response === "ok"){
+                AdjustToggle()
+            }
+        })
+    }
+
+    const SaveEvent = () => {
+        if (newmode == true){
+            SaveNewCred()
+        }else{
+            UpdateCard()
+        }
     }
 
     const DeleteCard = () => {

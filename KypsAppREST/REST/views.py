@@ -1,4 +1,5 @@
-from django.http import HttpResponse, JsonResponse
+from curses.ascii import HT
+from django.http import HttpResponse, JsonResponse, QueryDict
 from .serializer import CredentialsSerializer
 from .models import Credentials, Profile
 from django.views.decorators.csrf import csrf_exempt
@@ -7,6 +8,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 import base64
 import os
+import json
 
 @csrf_exempt
 def Registration(request):
@@ -96,4 +98,18 @@ def DeleteCredentials(request, id_cred, user_auth_id):
             return JsonResponse({"response":"ok"})
         else:
             return JsonResponse({"response":"nok"})
+    return HttpResponse(status=403)
+
+@csrf_exempt
+def PutCredentials(request, id_cred, user_auth_id, form_data):
+    if request.method == "PUT":
+        form_data = json.loads(form_data)
+        profile = Profile.objects.filter(user_auth_id = user_auth_id).first()
+        cred = Credentials.objects.filter(id_cred = id_cred, profile = profile)
+        if cred.exists():
+            form_data["profile"] = profile.id
+            serializer = CredentialsSerializer(cred.first(), data=form_data)
+            if serializer.is_valid():
+                serializer.save()
+                return JsonResponse({"response":"ok", "serializer":serializer.data})
     return HttpResponse(status=403)

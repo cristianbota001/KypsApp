@@ -67,6 +67,8 @@
     background-color: rgba(108, 157, 196, 0.764);
     border-radius: 10px;
     transition: 0.2s;
+    border: none;
+    outline: none;
 }
 
 .Home__add_button:hover, .Home__exit_button:hover{
@@ -122,6 +124,8 @@
     background-color: white;
     border-radius: 20px;
     transition: 0.2s;
+    border: none;
+    outline: none;
 }
 
 .Home__credentials_card_navbar_div_button:hover{
@@ -143,6 +147,8 @@
     font-size: 11px;
     cursor: pointer;
     transition: 0.2s;
+    border: none;
+    outline: none;
 }
 
 .Home__credentials_card_footer_button:hover{

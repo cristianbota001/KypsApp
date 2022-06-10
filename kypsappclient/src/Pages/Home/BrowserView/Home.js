@@ -8,15 +8,15 @@ import adjust from "./MEDIA/adjust.png"
 import Middleware from "../../../middleware";
 import { v4 } from 'uuid';
 import {useNavigate} from "react-router-dom"
+import { useSelector, useDispatch } from "react-redux";
 
 const Card = (props) => {
 
-    var adjust_button = useRef()
-    var delete_button = useRef()
-    var save_button = useRef()
-    var undo_button = useRef()
     var footer_card = useRef()
     var input_div = useRef()
+
+    const cred = useSelector(state => state.credReducer)
+    const dispatch = useDispatch()
 
     const [newmode, setNewMode] = useState(props.infos.newmode)
     const [id_cred, setIdCred] = useState(props.infos.id_cred)
@@ -30,28 +30,20 @@ const Card = (props) => {
     }, [])
 
     useEffect(() => {
-
-        undo_button.current.addEventListener("click", UndoEvent)
-        adjust_button.current.addEventListener("click", AdjustEvent)
-        save_button.current.addEventListener("click", SaveEvent)
-        delete_button.current.addEventListener("click", DeleteCard)
-
-        return(() => {
-            if (undo_button.current !== null && adjust_button.current !== null && save_button.current !== null && delete_button.current !== null){
-                undo_button.current.removeEventListener("click", UndoEvent)
-                adjust_button.current.removeEventListener("click", AdjustEvent)
-                save_button.current.removeEventListener("click", SaveEvent)
-                delete_button.current.removeEventListener("click", DeleteCard)
-            }
-        })
-        
-    }, [newmode, props.cred])
+        console.log("cred home => ", cred)
+    }, [cred])
 
     const SetInputValues = () => {
+        SetCopyCred()
         let elems = input_div.current.querySelectorAll("input")
         elems[0].value = props.infos.service
         elems[1].value = props.infos.username
         elems[2].value = props.infos.password
+    }
+
+    const SetCopyCred = () => {
+        //let elems = input_div.current.querySelectorAll("input")
+        //props.setCopyCred(prev => [...prev, {service:elems[0].value, username:elems[1].value, password:elems[2].value}])
     }
 
     const AdjustEvent = () => {
@@ -80,6 +72,7 @@ const Card = (props) => {
         form_data.append("user_auth_id", sessionStorage.getItem("user_auth_id"))
         Middleware.SendRequest(form_data, "POST", "post_credentials").then(json_data => {
             if (json_data.response === "ok"){
+                //SetCopyCred()
                 setIdCred(json_data.id_cred)
                 AdjustToggle()
                 setNewMode(false)
@@ -110,10 +103,12 @@ const Card = (props) => {
         if (newmode == false){
             Middleware.SendRequest(null, "DELETE", "delete_credentials/" + id_cred + "/" + sessionStorage.getItem("user_auth_id")).then(json_data => {
                 if (json_data.response === "ok"){
-                   //
+                   /* let lista = [...props.copycred]
+                   lista.splice(props.index_card, 1)
+                   props.setCopyCred([...lista]) */
                 }
             })
-            props.PopCred(props.index_card)
+            dispatch({type:"spliceCred", index:props.index_card})
         }
     }
 
@@ -121,10 +116,10 @@ const Card = (props) => {
         <div className="Home__credentials_card">
             <div className="Home__credentials_card_navbar">
                 <div className="Home__credentials_card_navbar_cont">
-                    <button className="Home__credentials_card_navbar_div_button" ref={adjust_button}>
+                    <button className="Home__credentials_card_navbar_div_button" onClick={AdjustEvent}>
                         <img src={adjust} alt="adjust" className="Home__credentials_card_navbar_img_button" />
                     </button>
-                    <button className="Home__credentials_card_navbar_div_button" ref={delete_button}>
+                    <button className="Home__credentials_card_navbar_div_button" onClick={DeleteCard}>
                         <img src={delete_img} alt="delete" className="Home__credentials_card_navbar_img_button" />
                     </button>
                 </div>
@@ -140,10 +135,10 @@ const Card = (props) => {
                 </form>
             </div>
             <div className="Home__credentials_card_footer" ref={footer_card}>
-                <button className="Home__credentials_card_footer_button" ref={undo_button}>
+                <button className="Home__credentials_card_footer_button" onClick={UndoEvent}>
                     Annulla
                 </button>
-                <button className="Home__credentials_card_footer_button" ref={save_button}>
+                <button className="Home__credentials_card_footer_button" onClick={SaveEvent}>
                     Salva
                 </button>
             </div>
@@ -153,15 +148,14 @@ const Card = (props) => {
 
 const Home = () => {
 
-    const [cred, setCred] = useState([])
     const [saving, setSaving] = useState(false)
+    const cred = useSelector(state => state.credReducer)
+    const dispatch = useDispatch()
     const navigate = useNavigate()
-    var add_button = useRef()
-    var exit_button = useRef()
 
     const AddNewCred = () => {
         if (saving == false){
-            setCred([...cred, {newmode:true, id_comp:v4()}])
+            dispatch({type:"setCred", value:{newmode:true, id_comp:v4()}})
             setSaving(true)
         }   
     }
@@ -173,32 +167,30 @@ const Home = () => {
     }
 
     const PopCred = (index) => {
-        let lista = [...cred]
-        index === undefined ? lista.pop() : lista.splice(index, 1)
-        setCred([...lista])
+        index === undefined ? dispatch({type:"popCred"}) : dispatch({type:"spliceCred", index:index})
         setSaving(false)
     }
 
     const Save = () => {
         setSaving(false)
-        cred[cred.length - 1].newmode = false // si potrebbe togliere perche se l'id del componente non cambia, non viene re-renderizzato
+        //cred[cred.length - 1].newmode = false // si potrebbe togliere perche se l'id del componente non cambia, non viene re-renderizzato
     }
 
-    useEffect(() => {
-        add_button.current.addEventListener("click", AddNewCred)
-        exit_button.current.addEventListener("click", ExitEvent)
-        return(() => {
-            if (add_button.current !== null && exit_button.current !== null){
-                add_button.current.removeEventListener("click", AddNewCred)
-                exit_button.current.removeEventListener("click", ExitEvent)
+    function SearchEvent(key){
+        /* cred.forEach(ele => {
+            if (ele.username.includes(key) || ele.service.includes(key) || ele.password.includes(key)){
+                
             }
-        })
-       
-    }, [cred, saving])
+        }) */
+    }
 
     useEffect(() => {
         GetCreds()
     }, [])
+
+    useEffect(() => {
+        console.log("cred index => ", cred)
+    }, [cred])
 
     const GetCreds = () => {
         Middleware.SendRequest(null, "GET", "get_credentials/" + sessionStorage.getItem("user_auth_id")).then(json_data => {
@@ -206,7 +198,7 @@ const Home = () => {
                 ele["newmode"] = false
                 ele["id_comp"] = v4()
             })
-            setCred([...json_data.response])
+            dispatch({type:"resetCred", value:json_data.response})
         })
     }
 
@@ -215,16 +207,16 @@ const Home = () => {
            <div className="Home__search_bar_cont">
                 <div className="Home__search_bar_div">
                     <img src={search} alt="search" className="Home__search_img" />
-                    <input type="text" className="Home__search_text_input" spellCheck="false" />
+                    <input type="text" className="Home__search_text_input" spellCheck="false" onChange={SearchEvent}/>
                 </div>
            </div>
            <div className="Home__core_cont">
                <div className="Home__options_cont">
                     <div className="Home__options_second_cont">
-                        <button className="Home__add_button" ref={add_button}>
+                        <button className="Home__add_button" onClick={AddNewCred}>
                             <img src={add} alt="add" className="Home__nav_button" />
                         </button>
-                        <button className="Home__exit_button" ref={exit_button}>
+                        <button className="Home__exit_button" onClick={ExitEvent}>
                             <img src={exit} alt="add" className="Home__nav_button" />
                         </button>
                     </div>
@@ -232,7 +224,7 @@ const Home = () => {
                <div className="Home__view_cont">
                     {
                         cred.map((ele, index) => {
-                            return <Card key={ele.id_comp} index_card = {index} infos = {ele} PopCred = {PopCred} Save = {Save} cred = {cred} />
+                            return <Card key={ele.id_comp} index_card = {index} infos = {ele} Save = {Save} PopCred = {PopCred} />
                         })
                     }
                </div>

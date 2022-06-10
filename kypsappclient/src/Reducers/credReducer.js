@@ -7,9 +7,14 @@ const credReducer = (state = [], action) => {
             lista.splice(action.index, 1)
             return [...lista];
         }
-        case "popCred":{
+        case "popCred": {
             let lista = [...state];
             lista.pop()
+            return [...lista];
+        }
+        case "updateCred": {
+            let lista = [...state];
+            lista[action.index] = {...action.value}
             return [...lista];
         }
         default: return state;

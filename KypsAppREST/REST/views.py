@@ -111,5 +111,5 @@ def PutCredentials(request, id_cred, user_auth_id, form_data):
             serializer = CredentialsSerializer(cred.first(), data=form_data)
             if serializer.is_valid():
                 serializer.save()
-                return JsonResponse({"response":"ok", "serializer":serializer.data})
+                return JsonResponse({"response":"ok"})
     return HttpResponse(status=403)

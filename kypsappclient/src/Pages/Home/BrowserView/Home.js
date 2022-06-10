@@ -15,7 +15,6 @@ const Card = (props) => {
     var footer_card = useRef()
     var input_div = useRef()
 
-    const cred = useSelector(state => state.credReducer)
     const dispatch = useDispatch()
 
     const [newmode, setNewMode] = useState(props.infos.newmode)
@@ -29,21 +28,11 @@ const Card = (props) => {
         }
     }, [])
 
-    useEffect(() => {
-        console.log("cred home => ", cred)
-    }, [cred])
-
     const SetInputValues = () => {
-        SetCopyCred()
         let elems = input_div.current.querySelectorAll("input")
         elems[0].value = props.infos.service
         elems[1].value = props.infos.username
         elems[2].value = props.infos.password
-    }
-
-    const SetCopyCred = () => {
-        //let elems = input_div.current.querySelectorAll("input")
-        //props.setCopyCred(prev => [...prev, {service:elems[0].value, username:elems[1].value, password:elems[2].value}])
     }
 
     const AdjustEvent = () => {
@@ -72,11 +61,11 @@ const Card = (props) => {
         form_data.append("user_auth_id", sessionStorage.getItem("user_auth_id"))
         Middleware.SendRequest(form_data, "POST", "post_credentials").then(json_data => {
             if (json_data.response === "ok"){
-                //SetCopyCred()
                 setIdCred(json_data.id_cred)
                 AdjustToggle()
                 setNewMode(false)
                 props.Save()
+                //update cred with newmode=false and username service and password
             }
         })
     }
@@ -87,6 +76,7 @@ const Card = (props) => {
         Middleware.SendRequest(form_data, "PUT", "put_credentials/" + id_cred + "/" + sessionStorage.getItem("user_auth_id") + "/" + form_data).then(json_data => {
             if (json_data.response === "ok"){
                 AdjustToggle()
+                //update cred with username service and password
             }
         })
     }
@@ -103,9 +93,7 @@ const Card = (props) => {
         if (newmode == false){
             Middleware.SendRequest(null, "DELETE", "delete_credentials/" + id_cred + "/" + sessionStorage.getItem("user_auth_id")).then(json_data => {
                 if (json_data.response === "ok"){
-                   /* let lista = [...props.copycred]
-                   lista.splice(props.index_card, 1)
-                   props.setCopyCred([...lista]) */
+                   //
                 }
             })
             dispatch({type:"spliceCred", index:props.index_card})
@@ -150,6 +138,7 @@ const Home = () => {
 
     const [saving, setSaving] = useState(false)
     const cred = useSelector(state => state.credReducer)
+    const [searchkey, setSearchKey] = useState("")
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
@@ -176,21 +165,9 @@ const Home = () => {
         //cred[cred.length - 1].newmode = false // si potrebbe togliere perche se l'id del componente non cambia, non viene re-renderizzato
     }
 
-    function SearchEvent(key){
-        /* cred.forEach(ele => {
-            if (ele.username.includes(key) || ele.service.includes(key) || ele.password.includes(key)){
-                
-            }
-        }) */
-    }
-
     useEffect(() => {
         GetCreds()
     }, [])
-
-    useEffect(() => {
-        console.log("cred index => ", cred)
-    }, [cred])
 
     const GetCreds = () => {
         Middleware.SendRequest(null, "GET", "get_credentials/" + sessionStorage.getItem("user_auth_id")).then(json_data => {
@@ -207,7 +184,7 @@ const Home = () => {
            <div className="Home__search_bar_cont">
                 <div className="Home__search_bar_div">
                     <img src={search} alt="search" className="Home__search_img" />
-                    <input type="text" className="Home__search_text_input" spellCheck="false" onChange={SearchEvent}/>
+                    <input type="text" className="Home__search_text_input" spellCheck="false" onChange={(e) => setSearchKey(e.target.value)}/>
                 </div>
            </div>
            <div className="Home__core_cont">
@@ -224,7 +201,9 @@ const Home = () => {
                <div className="Home__view_cont">
                     {
                         cred.map((ele, index) => {
-                            return <Card key={ele.id_comp} index_card = {index} infos = {ele} Save = {Save} PopCred = {PopCred} />
+                            //if ((ele.username.includes(searchkey) || ele.service.includes(searchkey)) || ele.password.includes(searchkey)){
+                                return <Card key={ele.id_comp} index_card = {index} infos = {ele} Save = {Save} PopCred = {PopCred} />
+                            //}
                         })
                     }
                </div>

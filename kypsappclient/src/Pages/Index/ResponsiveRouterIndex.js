@@ -23,7 +23,8 @@ function ResponsiveRouterIndex(){
 
     return (
         <>
-            {isBrowser && <Index/>}
+            {/* {isBrowser && <Index/>} */}
+            <Index/>
         </>
     )
 

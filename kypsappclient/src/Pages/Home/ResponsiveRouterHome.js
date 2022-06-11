@@ -23,7 +23,8 @@ function ResponsiveRouterHome(){
 
     return (
         <>
-            {isBrowser && <Home/>}
+            {/* {isBrowser && <Home/>} */}
+            <Home/>
         </>
     )
 

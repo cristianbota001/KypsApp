@@ -16,6 +16,7 @@ const Card = (props) => {
     var input_div = useRef()
 
     const dispatch = useDispatch()
+    const cred = useSelector(state => state.credReducer)
 
     const [newmode, setNewMode] = useState(props.infos.newmode)
     const [id_cred, setIdCred] = useState(props.infos.id_cred)
@@ -65,9 +66,14 @@ const Card = (props) => {
                 AdjustToggle()
                 setNewMode(false)
                 props.Save()
-                //update cred with newmode=false and username service and password
+                updateCred(cred.length - 1, json_data.id_cred)
             }
         })
+    }
+
+    const updateCred = (index, id_c) => {
+        let elems = input_div.current.querySelectorAll("input")
+        dispatch({type:"updateCred", service:elems[0].value, username:elems[1].value, password:elems[2].value, index:index, id_cred:id_c})
     }
 
     const UpdateCard = () => {
@@ -76,7 +82,7 @@ const Card = (props) => {
         Middleware.SendRequest(form_data, "PUT", "put_credentials/" + id_cred + "/" + sessionStorage.getItem("user_auth_id") + "/" + form_data).then(json_data => {
             if (json_data.response === "ok"){
                 AdjustToggle()
-                //update cred with username service and password
+                updateCred(props.index_card)
             }
         })
     }
@@ -144,7 +150,7 @@ const Home = () => {
 
     const AddNewCred = () => {
         if (saving == false){
-            dispatch({type:"setCred", value:{newmode:true, id_comp:v4()}})
+            dispatch({type:"setCred", value:{newmode:true, id_comp:v4(), username:"", service:"", password:"", id_cred:null}})
             setSaving(true)
         }   
     }
@@ -162,7 +168,6 @@ const Home = () => {
 
     const Save = () => {
         setSaving(false)
-        //cred[cred.length - 1].newmode = false // si potrebbe togliere perche se l'id del componente non cambia, non viene re-renderizzato
     }
 
     useEffect(() => {
@@ -201,9 +206,9 @@ const Home = () => {
                <div className="Home__view_cont">
                     {
                         cred.map((ele, index) => {
-                            //if ((ele.username.includes(searchkey) || ele.service.includes(searchkey)) || ele.password.includes(searchkey)){
+                            if ((ele.username.includes(searchkey) || ele.service.includes(searchkey)) || ele.password.includes(searchkey)){
                                 return <Card key={ele.id_comp} index_card = {index} infos = {ele} Save = {Save} PopCred = {PopCred} />
-                            //}
+                            }
                         })
                     }
                </div>

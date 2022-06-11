@@ -14,7 +14,13 @@ const credReducer = (state = [], action) => {
         }
         case "updateCred": {
             let lista = [...state];
-            lista[action.index] = {...action.value}
+            lista[action.index].service = action.service
+            lista[action.index].username = action.username
+            lista[action.index].password = action.password
+            lista[action.index].newmode = false
+            
+            if (action.id_cred !== undefined) {lista[action.index].id_cred = action.id_cred;}
+
             return [...lista];
         }
         default: return state;
